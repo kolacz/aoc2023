@@ -46,6 +46,26 @@ def firstSolutionDay3(): Unit =
 
     println(partNumberSums.sum)
 
+def secondSolutionDay3(): Unit =
+  project.withInputOfDay(3): lines =>
+    val rows = lines.map(line => partitionTokens(EngineLineParser(line)))
+    val (preGuard, postGuard) = Iterator((Nil, Nil)).duplicate
+    val gearRatios = (preGuard ++ rows ++ postGuard).sliding(3).map:
+      case Seq(
+        (previousNumbers, _), (currentNumbers, currentSymbols), (nextNumbers, _)
+      ) =>
+        val gearRatio = for
+          possiblyGear <- currentSymbols.filter(_ == Symbol("*"))
+          partNumbers = (previousNumbers ++ currentNumbers ++ nextNumbers).filter { number =>
+            isAdjacent(number, possiblyGear)
+          } if partNumbers.length == 2
+        yield partNumbers.map(_.value.toInt).product
+
+        gearRatio.sum
+
+    println(gearRatios.sum)
+
 @main
 def day3(): Unit =
   firstSolutionDay3()
+  secondSolutionDay3()
